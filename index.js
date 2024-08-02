@@ -30,7 +30,7 @@ app.get("/api/products", async (req, res) => {
 });
 
 // When someone visits /api/products/:id, we get a product by its ID
-app.get("/api/products/:id", async (req, res) => {
+app.get("/api/product/:id", async (req, res) => {
   try {
     // We get the ID from the URL
     const { id } = req.params;
@@ -53,6 +53,48 @@ app.post("/api/products", async (req, res) => {
     res.status(200).json(data);
   } catch (error) {
     // If something goes wrong, we send back an error message with a status of 500 (Server Error)
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Route to update a product by its ID
+app.put("/api/product/:id", async (req, res) => {
+  try {
+    // Extract the product ID from the request parameters
+    const { id } = req.params;
+
+    // Find the product by its ID and update it with the request body data
+    const product = await Product.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+
+    // If no product is found, send a 404 status with a 'Product not found' message
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    // Send back the updated product with a 200 status
+    res.status(200).json(product);
+  } catch (error) {
+    // If something goes wrong, send back an error message with a 500 status (Server Error)
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Route to delete a product by its ID
+app.delete("/api/product/:id", async (req, res) => {
+  try {
+    // Extract the product ID from the request parameters
+    const { id } = req.params;
+
+    // Find the product by its ID and delete it
+    const product = await Product.findByIdAndDelete(id);
+
+    // If no product is found, send a 404 status with a 'Product not found' message
+    if (!product) return res.status(404).json({ message: "Product not found" });
+
+    // Send back a success message with a 200 status
+    res.status(200).json({ message: "Product successfully deleted" });
+  } catch (error) {
+    // If something goes wrong, send back an error message with a 500 status (Server Error)
     res.status(500).json({ message: error.message });
   }
 });
